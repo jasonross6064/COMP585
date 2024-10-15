@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 void main() {
   runApp(const MaterialApp(
-    title: 'Gardening App'
-        home: GardenApp(),
+    title: 'Gardening App',
+        home: GardenApp()
   ));
 }
 
