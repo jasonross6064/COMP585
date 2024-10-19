@@ -5,10 +5,12 @@ import 'gardening_tips.dart';
 import 'my_plants.dart';
 
 void main() {
-  runApp(GardenApp());
+  runApp(const GardenApp());
 }
 
 class GardenApp extends StatelessWidget {
+  const GardenApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -21,12 +23,14 @@ class GardenApp extends StatelessWidget {
           unselectedItemColor: Colors.green[400],
         ),
       ),
-      home: MainPage(),
+      home: const MainPage(),
     );
   }
 }
 
 class MainPage extends StatefulWidget {
+  const MainPage({super.key});
+
   @override
   _MainPageState createState() => _MainPageState();
 }
@@ -35,10 +39,10 @@ class _MainPageState extends State<MainPage> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
-    HomePage(),
-    DictionaryPage(),
-    GardeningTipsPage(),
-    MyPlantsPage(),
+    const HomePage(),
+    const DictionaryPage(),
+    const GardeningTipsPage(),
+    const MyPlantsPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -51,7 +55,7 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: Text('Gardening App'),
+          title: const Text('Gardening App'),
               backgroundColor: Colors.green,
       ),
       body: _pages[_selectedIndex],
