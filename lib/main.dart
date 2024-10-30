@@ -14,7 +14,7 @@ class GardenApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Gardening App',
+      title: 'PlantPals',
       theme: ThemeData(
         primarySwatch: Colors.green,
         bottomNavigationBarTheme: BottomNavigationBarThemeData(
@@ -55,7 +55,7 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: const Text('Gardening App'),
+          title: const Text('PlantPals'),
               backgroundColor: Colors.green,
       ),
       body: _pages[_selectedIndex],

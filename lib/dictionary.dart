@@ -12,46 +12,78 @@ class DictionaryPage extends StatefulWidget {
 class _DictionaryPageState extends State<DictionaryPage> {
   List<dynamic> plants = [];
   bool isLoading = false;
+  bool isFetchingMore = false;
+  int currentPage = 1;
   int? selectedIndex;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     fetchPlants();
+    _scrollController.addListener(_onScroll);
   }
 
   Future<void> fetchPlants() async {
+    if (isLoading || isFetchingMore) return;
+
     setState(() {
-     isLoading = true;
+      isLoading = currentPage == 1;
+      isFetchingMore = currentPage > 1;
     });
 
     const apiKey = 'sk-9Hdu671316cb84c647326';
     final response = await http.get(
-      Uri.parse('https://perenual.com/api/species-list?page=1&key=$apiKey'),
+      Uri.parse('https://perenual.com/api/species-list?page=$currentPage&key=$apiKey&order=asc'),
     );
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       setState(() {
-        plants = data['data'];
+        plants.addAll(data['data']);
         isLoading = false;
+        isFetchingMore = false;
       });
     } else {
       setState(() {
         isLoading = false;
+        isFetchingMore = false;
       });
       print('Failed to load plants');
     }
   }
 
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200 &&
+        !isLoading &&
+        !isFetchingMore) {
+      currentPage++;
+      fetchPlants();
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: isLoading
+      body: isLoading && currentPage == 1
           ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: plants.length,
+          : Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              controller: _scrollController,
+              itemCount: plants.length + (isFetchingMore ? 1 : 0),
               itemBuilder: (context, index) {
+                if (index == plants.length) {
+                  return const Center(child: CircularProgressIndicator());
+                }
                 final plant = plants[index];
                 return Card(
                   elevation: 2,
@@ -60,11 +92,11 @@ class _DictionaryPageState extends State<DictionaryPage> {
                   child: ListTile(
                     leading: plant['default_image'] != null
                         ? Image.network(
-                            plant['default_image']['thumbnail'],
-                            width: 50,
-                            height: 50,
-                            fit: BoxFit.cover,
-                        )
+                      plant['default_image']['thumbnail'],
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.cover,
+                    )
                         : const Icon(Icons.local_florist),
                     title: Text(
                       plant['common_name'] ?? 'Unknown',
@@ -78,6 +110,14 @@ class _DictionaryPageState extends State<DictionaryPage> {
                   ),
                 );
               },
+            ),
+          ),
+          if (isFetchingMore)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 10),
+              child: CircularProgressIndicator(),
+            ),
+        ],
       ),
     );
   }
