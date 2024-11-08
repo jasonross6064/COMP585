@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'home.dart';
-import 'dictionary.dart';
-import 'gardening_tips.dart';
-import 'my_plants.dart';
+import 'dictionary_page/dictionary.dart';
+import 'gardening_tips_page/gardening_tips.dart';
+import 'my_plants_page/my_plants.dart';
 
 void main() {
   runApp(const GardenApp());
@@ -41,8 +41,8 @@ class _MainPageState extends State<MainPage> {
   final List<Widget> _pages = [
     const HomePage(),
     const DictionaryPage(),
-    const GardeningTipsPage(),
-    const MyPlantsPage(),
+    GardeningTipsPage(),
+    MyPlantsPage(),
   ];
 
   void _onItemTapped(int index) {
