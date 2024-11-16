@@ -53,7 +53,7 @@ class _MyPlantsPageState extends State<MyPlantsPage> {
           if (plant.image.isEmpty) {
             // If no image is set, show a default icon
             imageWidget = const Icon(
-                Icons.image,
+                Icons.yard,
                 size: 80, // Larger icon size
                 color: Colors.grey
             );
