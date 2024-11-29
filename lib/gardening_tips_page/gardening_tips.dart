@@ -15,6 +15,9 @@ class GardeningTipsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Gardening Tips'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: GridView.builder(
@@ -29,6 +32,17 @@ class GardeningTipsPage extends StatelessWidget {
             return GardeningTopicCard(
               title: gardeningTopics[index]['title']!,
               imagePath: gardeningTopics[index]['image']!,
+              onTap: () {
+                // Navigate to the informational page for the selected topic
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => GardeningInfoPage(
+                      title: gardeningTopics[index]['title']!,
+                    ),
+                  ),
+                );
+              },
             );
           },
         ),
@@ -40,8 +54,13 @@ class GardeningTipsPage extends StatelessWidget {
 class GardeningTopicCard extends StatelessWidget {
   final String title;
   final String imagePath;
+  final VoidCallback onTap;
 
-  GardeningTopicCard({required this.title, required this.imagePath});
+  GardeningTopicCard({
+    required this.title,
+    required this.imagePath,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -51,10 +70,7 @@ class GardeningTopicCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: InkWell(
-        onTap: () {
-          // You can navigate to a detailed page or perform other actions
-          print('Tapped on $title');
-        },
+        onTap: onTap, // Use the passed callback to handle tap
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
@@ -85,6 +101,42 @@ class GardeningTopicCard extends StatelessWidget {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class GardeningInfoPage extends StatelessWidget {
+  final String title;
+
+  GardeningInfoPage({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('$title Information'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              'Learn more about $title',
+              style: TextStyle(
+                fontSize: 24.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Here is detailed information about $title. This section can include tips, best practices, and relevant advice for gardeners interested in this topic.',
+              style: TextStyle(fontSize: 16.0),
+            ),
+            // You can add more information here, like images, videos, etc.
+          ],
         ),
       ),
     );

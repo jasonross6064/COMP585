@@ -41,7 +41,7 @@ class _HomePageState extends State<HomePage> {
 
     if (storedDate != today) {
       // It's a new day, so set a new plant index
-      final newPlantIndex = DateTime.now().day % 10; // You can change this logic to fit your needs
+      final newPlantIndex = DateTime.now().day % 10;
       prefs.setInt('plantIndex', newPlantIndex);
       prefs.setString('lastFetchedDate', today);  // Save today's date
       setState(() {

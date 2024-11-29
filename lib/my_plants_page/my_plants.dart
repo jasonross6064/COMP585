@@ -17,6 +17,42 @@ class _MyPlantsPageState extends State<MyPlantsPage> {
     Plant(name: 'Goeff', species: 'Cactaceae', age: 3, wateringLevel: 20, happinessLevel: 60, image: '',),
   ];
 
+  // List of watering schedules
+  final List<String> wateringSchedules = [
+    'Twice a week',
+    'Once a week',
+    'Once every other week',
+    'Once a month'
+  ];
+
+  // Current selected schedule for each plant, stored by plant index
+  Map<int, String> selectedSchedules = {};
+
+  // Method to calculate watering level based on selected schedule
+  void updateWateringLevel(int index, String schedule) {
+    int wateringLevel = 0;
+
+    switch (schedule) {
+      case 'Twice a week':
+        wateringLevel = 100;
+        break;
+      case 'Once a week':
+        wateringLevel = 75;
+        break;
+      case 'Once every other week':
+        wateringLevel = 50;
+        break;
+      case 'Once a month':
+        wateringLevel = 25;
+        break;
+    }
+
+    setState(() {
+      plants[index].wateringLevel = wateringLevel;
+      selectedSchedules[index] = schedule;  // Store selected schedule by plant index
+    });
+  }
+
   // Edit or add plant (based on the context)
   Future<void> _editOrAddPlant(int? index) async {
     final updatedPlant = await Navigator.push(
@@ -120,6 +156,22 @@ class _MyPlantsPageState extends State<MyPlantsPage> {
                     color: Colors.orange,
                     minHeight: 6,
                   ),
+                  SizedBox(height: 16),
+                  // Dropdown for selecting watering schedule
+                  DropdownButton<String>(
+                    value: selectedSchedules[index] ?? wateringSchedules[1], // Default to "Once a week"
+                    onChanged: (String? newValue) {
+                      if (newValue != null) {
+                        updateWateringLevel(index, newValue); // Update the watering level
+                      }
+                    },
+                    items: wateringSchedules.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
                 ],
               ),
             ),
@@ -134,3 +186,4 @@ class _MyPlantsPageState extends State<MyPlantsPage> {
     );
   }
 }
+
