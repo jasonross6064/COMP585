@@ -29,6 +29,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    fetchStoredPlantIndex();  // Ensure the plant index is fetched at the start
     fetchRandomPlant(); // Fetch plant data
     fetchWeatherData();  // Fetch weather data
   }
@@ -49,13 +50,15 @@ class _HomePageState extends State<HomePage> {
       });
     } else {
       // Use the stored plant index for today
-      plantIndex = prefs.getInt('plantIndex') ?? 0;
+      setState(() {
+        plantIndex = prefs.getInt('plantIndex') ?? 0;
+      });
     }
   }
 
   // Fetch plant data
   Future<void> fetchRandomPlant() async {
-    const apiKey = 'sk-9Hdu671316cb84c647326';
+    const apiKey = 'sk-9Hdu671316cb84c647326';  // API key should ideally be stored securely
     final currentPage = 1;
 
     try {
@@ -67,10 +70,16 @@ class _HomePageState extends State<HomePage> {
         final data = json.decode(response.body);
         final plants = data['data'] as List;
 
-        // Ensure we are getting a plant with a valid image
+        // Filter out premium plants based on image URL containing 'upgrade_access'
+        List<dynamic> filteredPlants = plants.where((plant) {
+          final imageUrl = plant['default_image']?['regular_url'];
+          // Ensure image URL is valid and doesn't contain 'upgrade_access'
+          return imageUrl != null && imageUrl != 'null' && !imageUrl.contains('upgrade_access');
+        }).toList();
+
         bool plantFound = false;
-        for (var i = plantIndex; i < plants.length; i++) {
-          final plant = plants[i];
+        for (var i = plantIndex; i < filteredPlants.length; i++) {
+          final plant = filteredPlants[i];
           final imageUrl = plant['default_image']?['regular_url'];
 
           if (imageUrl != null && imageUrl.isNotEmpty && imageUrl != 'null') {
@@ -121,6 +130,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+
   // Handle 'sunlight' field which could be a List or String
   String _handleSunlightField(dynamic sunlight) {
     if (sunlight is List) {
@@ -143,11 +153,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-
-
-
-
-
   // Fetch weather data
   Future<void> fetchWeatherData() async {
     const apiKey = 'c7c88d7c24d8488f95903555241611';
@@ -158,15 +163,13 @@ class _HomePageState extends State<HomePage> {
         Uri.parse('http://api.weatherapi.com/v1/current.json?key=$apiKey&q=$cityName&aqi=no'),
       );
 
-      print('Weather response status: ${response.statusCode}');
-
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
           weatherDescription = data['current']['condition']['text'] ?? 'No description available';
-          temperature = '${data['current']['temp_c']}°C' ?? 'No temperature data';
-          humidity = '${data['current']['humidity']}%' ?? 'No humidity data';
-          windSpeed = '${data['current']['wind_kph']} km/h' ?? 'No wind speed data';
+          temperature = '${data['current']['temp_c']}°C';  // Remove fallback as it's handled in the UI
+          humidity = '${data['current']['humidity']}%';
+          windSpeed = '${data['current']['wind_kph']} km/h';
           isWeatherLoading = false;
         });
       } else {

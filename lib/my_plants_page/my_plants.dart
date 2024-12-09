@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:gardening_app/my_plants_page/plant.dart';
 import 'package:gardening_app/my_plants_page/edit_plants_page.dart';
@@ -19,10 +18,11 @@ class _MyPlantsPageState extends State<MyPlantsPage> {
 
   // List of watering schedules
   final List<String> wateringSchedules = [
-    'Twice a week',
-    'Once a week',
-    'Once every other week',
-    'Once a month'
+    'Every Day',
+    'Every Other Day',
+    'Once a Week',
+    'Once Every Two Weeks',
+    'Once a Month',
   ];
 
   // Current selected schedule for each plant, stored by plant index
@@ -33,16 +33,19 @@ class _MyPlantsPageState extends State<MyPlantsPage> {
     int wateringLevel = 0;
 
     switch (schedule) {
-      case 'Twice a week':
+      case 'Every Day':
         wateringLevel = 100;
         break;
-      case 'Once a week':
+      case 'Every Other Day':
+        wateringLevel = 80;
+        break;
+      case 'Once a Week':
         wateringLevel = 75;
         break;
-      case 'Once every other week':
+      case 'Once Every Two Weeks':
         wateringLevel = 50;
         break;
-      case 'Once a month':
+      case 'Once a Month':
         wateringLevel = 25;
         break;
     }
@@ -103,76 +106,80 @@ class _MyPlantsPageState extends State<MyPlantsPage> {
             );
           }
 
-          return Card(
-            margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 16), // Increased card margin
-            elevation: 4, // Add some elevation for a raised effect
-            child: Padding(
-              padding: const EdgeInsets.all(16.0), // Add padding inside the card
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      imageWidget,  // Image or default icon
-                      SizedBox(width: 16), // Space between image and text
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              plant.name,
-                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              plant.species,
-                              style: TextStyle(fontSize: 16, color: Colors.grey),
-                            ),
-                          ],
+          return InkWell(
+            onTap: () => _editOrAddPlant(index),  // Handle the tap to edit plant
+            child: Card(
+              margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 16), // Increased card margin
+              elevation: 4, // Add some elevation for a raised effect
+              child: Padding(
+                padding: const EdgeInsets.all(16.0), // Add padding inside the card
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        imageWidget,  // Image or default icon
+                        SizedBox(width: 16), // Space between image and text
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                plant.name,
+                                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                plant.species,
+                                style: TextStyle(fontSize: 16, color: Colors.grey),
+                              ),
+                            ],
+                          ),
                         ),
+                      ],
+                    ),
+                    SizedBox(height: 16), // Space between image and progress bars
+                    // Water Level as Progress Bar
+                    Text(
+                      'Water Level',
+                      style: TextStyle(fontSize: 14, color: Colors.blue),
+                    ),
+                    LinearProgressIndicator(
+                      value: plant.wateringLevel / 100,
+                      backgroundColor: Colors.grey[200],
+                      color: Colors.blue,
+                      minHeight: 6,
+                    ),
+                    SizedBox(height: 8),  // Space between progress bars
+                    // Happiness Level as Progress Bar
+                    Text(
+                      'Happiness',
+                      style: TextStyle(fontSize: 14, color: Colors.orange),
+                    ),
+                    LinearProgressIndicator(
+                      value: plant.happinessLevel / 100,
+                      backgroundColor: Colors.grey[200],
+                      color: Colors.orange,
+                      minHeight: 6,
+                    ),
+                    SizedBox(height: 16),
+                    // Show dropdown only when editing a plant
+                    if (selectedSchedules[index] != null)
+                      DropdownButton<String>(
+                        value: selectedSchedules[index], // Show the selected schedule
+                        onChanged: (String? newValue) {
+                          if (newValue != null) {
+                            updateWateringLevel(index, newValue); // Update the watering level
+                          }
+                        },
+                        items: wateringSchedules.map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
                       ),
-                    ],
-                  ),
-                  SizedBox(height: 16), // Space between image and progress bars
-                  // Water Level as Progress Bar
-                  Text(
-                    'Water Level',
-                    style: TextStyle(fontSize: 14, color: Colors.blue),
-                  ),
-                  LinearProgressIndicator(
-                    value: plant.wateringLevel / 100,
-                    backgroundColor: Colors.grey[200],
-                    color: Colors.blue,
-                    minHeight: 6,
-                  ),
-                  SizedBox(height: 8),  // Space between progress bars
-                  // Happiness Level as Progress Bar
-                  Text(
-                    'Happiness',
-                    style: TextStyle(fontSize: 14, color: Colors.orange),
-                  ),
-                  LinearProgressIndicator(
-                    value: plant.happinessLevel / 100,
-                    backgroundColor: Colors.grey[200],
-                    color: Colors.orange,
-                    minHeight: 6,
-                  ),
-                  SizedBox(height: 16),
-                  // Dropdown for selecting watering schedule
-                  DropdownButton<String>(
-                    value: selectedSchedules[index] ?? wateringSchedules[1], // Default to "Once a week"
-                    onChanged: (String? newValue) {
-                      if (newValue != null) {
-                        updateWateringLevel(index, newValue); // Update the watering level
-                      }
-                    },
-                    items: wateringSchedules.map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           );
@@ -186,4 +193,3 @@ class _MyPlantsPageState extends State<MyPlantsPage> {
     );
   }
 }
-
